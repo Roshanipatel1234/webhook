@@ -1,0 +1,339 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// Example Wazuh alert event (replace with actual $json in n8n)\nconst data = {\n  \"_source\": {\n    \"syscheck\": {\n      \"path\": \"/etc/resolv.conf\",\n      \"event\": \"modified\",\n      \"md5_after\": \"f98a60d2228a83c689c4b606afd8d914\",\n      \"sha1_after\": \"cce33ce433fb8924c2bf87a29c4fe343e8f81047\",\n      \"sha256_after\": \"ddedcb9117e11857bfe81512f63ea96a755b046082088fd119f54d0007d8274b\"\n    },\n    \"agent\": {\n      \"name\": \"usertr26_agent\"\n    },\n    \"rule\": {\n      \"level\": 7,\n      \"description\": \"Integrity checksum changed.\"\n    },\n    \"timestamp\": \"2025-09-19T04:32:26.730+0000\"\n  }\n};\n\n// Normalize output\nreturn [\n  {\n    json: {\n      type: \"file_alert\",\n      file_path: data._source.syscheck.path,\n      event: data._source.syscheck.event,\n      md5: data._source.syscheck.md5_after,\n      sha1: data._source.syscheck.sha1_after,\n      sha256: data._source.syscheck.sha256_after,\n      description: data._source.rule.description,\n      agent: data._source.agent.name,\n      level: data._source.rule.level,\n      timestamp: data._source.timestamp\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -496,
+        -32
+      ],
+      "id": "f6d2be5b-db74-4724-9a11-c88a59aaef43",
+      "name": "Code in JavaScript",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "retryOnFail": false,
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "preBuiltAgentsCalloutHttpRequest": "",
+        "httpVariantWarning": "",
+        "curlImport": "",
+        "method": "GET",
+        "": "",
+        "url": "=https://www.virustotal.com/api/v3/files/275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f\n",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "virusTotalApi",
+        "provideSslCertificates": false,
+        "sendQuery": false,
+        "sendHeaders": false,
+        "sendBody": false,
+        "options": {},
+        "infoMessage": ""
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        -32
+      ],
+      "id": "47914d33-dc7a-4dd4-bd0a-aa14f87716aa",
+      "name": "VirusTotal HTTP Request",
+      "extendsCredential": "virusTotalApi",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "notesInFlow": false,
+      "credentials": {
+        "virusTotalApi": {
+          "id": "FsRypWZDORA1zGmS",
+          "name": "VirusTotal account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const vt = $json.vt_summary || {};\nconst engines = Object.keys(vt).map(k => vt[k]);\n\nreturn {\n  ...$json,\n  vt_engines: engines\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        -32
+      ],
+      "id": "20dc68ae-10fb-4b10-85ed-adae9831c659",
+      "name": "Code in JavaScript1",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>VirusTotal Scan Result - EICAR</title>\n  <style>\n    body {\n      font-family: Arial, sans-serif;\n      background: #f4f4f9;\n      color: #333;\n      margin: 20px;\n    }\n    h1, h2 {\n      color: #2c3e50;\n    }\n    table {\n      width: 100%;\n      border-collapse: collapse;\n      margin-bottom: 20px;\n    }\n    th, td {\n      border: 1px solid #ccc;\n      padding: 8px;\n      text-align: left;\n    }\n    th {\n      background-color: #2980b9;\n      color: white;\n    }\n    tr:nth-child(even) {\n      background-color: #ecf0f1;\n    }\n    .section {\n      margin-bottom: 30px;\n    }\n    .verdict {\n      font-weight: bold;\n      color: #c0392b;\n    }\n  </style>\n</head>\n<body>\n\n  <h1>Security Alert — File Integrity Event</h1>\n\n  <div class=\"section\">\n    <h2>File Information</h2>\n    <table>\n      <tr><th>SHA256</th><td>275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f</td></tr>\n      <tr><th>SHA1</th><td>3395856ce81f2b7382dee72602f798b642f14140</td></tr>\n      <tr><th>MD5</th><td>44d88612fea8a8f36de82e1278abb02f</td></tr>\n      <tr><th>Size (bytes)</th><td>68</td></tr>\n      <tr><th>Type</th><td>Powershell (.ps1)</td></tr>\n      <tr><th>First Seen</th><td>1582585760</td></tr>\n      <tr><th>Last Analysis</th><td>1758384053</td></tr>\n      <tr><th>Link</th><td><a href=\"https://www.virustotal.com/api/v3/files/275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f\" target=\"_blank\">View on VirusTotal</a></td></tr>\n    </table>\n  </div>\n\n  <div class=\"section\">\n    <h2>Popular Threat Classification</h2>\n    <table>\n      <tr><th>Category</th><th>Count</th></tr>\n      <tr><td>virus</td><td>15</td></tr>\n      <tr><td>trojan</td><td>2</td></tr>\n    </table>\n    <p><strong>Suggested Label:</strong> virus.eicar/test</p>\n  </div>\n\n  <div class=\"section\">\n    <h2>Last Analysis Results</h2>\n    <table>\n      <tr><th>Engine</th><th>Result</th><th>Category</th></tr>\n      <tr><td>Bkav</td><td>W32.EicarTest.Trojan</td><td>malicious</td></tr>\n      <tr><td>Lionic</td><td>Test.File.EICAR.y</td><td>malicious</td></tr>\n      <tr><td>Elastic</td><td>eicar</td><td>malicious</td></tr>\n      <tr><td>MicroWorld-eScan</td><td>EICAR-Test-File</td><td>malicious</td></tr>\n      <tr><td>CTX</td><td>txt.virus.eicar</td><td>malicious</td></tr>\n      <!-- Add more engines as needed -->\n    </table>\n  </div>\n\n  <div class=\"section\">\n    <h2>Crowdsourced YARA Matches</h2>\n    <table>\n      <tr><th>Rule Name</th><th>Description</th><th>Author</th><th>Source</th></tr>\n      <tr><td>malw_eicar</td><td>Rule to detect the EICAR pattern</td><td>Marc Rivero | McAfee ATR Team</td><td><a href=\"https://github.com/advanced-threat-research/Yara-Rules\" target=\"_blank\">GitHub</a></td></tr>\n      <tr><td>Multi_EICAR_ac8f42d6</td><td></td><td>Elastic Security</td><td><a href=\"https://github.com/elastic/protections-artifacts\" target=\"_blank\">GitHub</a></td></tr>\n      <tr><td>SUSP_Just_EICAR</td><td>Just an EICAR test file</td><td>Florian Roth (Nextron Systems)</td><td><a href=\"https://github.com/Neo23x0/signature-base\" target=\"_blank\">GitHub</a></td></tr>\n    </table>\n  </div>\n\n  <div class=\"section\">\n    <h2>Votes & Reputation</h2>\n    <p>Total Votes: <strong>Harmless: 2207</strong>, <strong>Malicious: 397</strong></p>\n    <p>Reputation Score: <strong>3687</strong></p>\n  </div>\n\n  <div class=\"section\">\n    <h2>Crowdsourced AI Insight</h2>\n    <p>EICAR is a test string used to detect and test antivirus software. It’s a “dummy virus” that triggers an antivirus engine to react, demonstrating its detection ability. It is <strong>NOT a real virus</strong>.</p>\n  </div>\n\n</body>\n</html>\n"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        176,
+        -208
+      ],
+      "id": "2cb33d13-34c2-4290-9dfa-8c85679495ed",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5bd466ae-4d98-48a1-b0e8-fbbb9b072ce9"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        192,
+        112
+      ],
+      "id": "4ab6eeb2-13c9-4d58-8ace-c56b4d07a234",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "sendTo": "proshani548@gmail.com",
+        "subject": "N8N WORKFLOW",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        432,
+        -208
+      ],
+      "id": "3f9e0015-5de2-4c51-ad30-de79e50aed48",
+      "name": "Send a message",
+      "webhookId": "2c658c15-8828-46dc-ab77-2cc1ab50ca78",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Og9Ra8rFOScMLrMq",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        672,
+        -48
+      ],
+      "id": "acb91edf-16d8-4575-91eb-6fc3647db509",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook-windows",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -752,
+        -32
+      ],
+      "id": "7e8cbc63-69d5-43a3-84fb-e3829718f537",
+      "name": "Webhook",
+      "webhookId": "d5e32ef1-02e6-472a-9df5-c34710e2dc4f"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "alerts ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        432,
+        112
+      ],
+      "id": "5e8acd0b-b015-4918-a14d-e1421a1954da",
+      "name": "Discord",
+      "webhookId": "50588d37-4afd-414c-8fb9-9084438344a2",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "BnFTRTOAVx5tcdui",
+          "name": "Discord Webhook account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "proshani548.app.n8n.cloud",
+            "user-agent": "curl/7.81.0",
+            "content-length": "0",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "103.178.143.212",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "IN",
+            "cf-ray": "98207963148f47c4-BOM",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "x-forwarded-for": "103.178.143.212, 172.69.87.10",
+            "x-forwarded-host": "proshani548.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-53-77dd8844d7-pkkhp",
+            "x-is-trusted": "yes",
+            "x-real-ip": "103.178.143.212"
+          },
+          "params": {},
+          "query": {},
+          "body": {},
+          "webhookUrl": "https://proshani548.app.n8n.cloud/webhook/webhook-windows",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "VirusTotal HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VirusTotal HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "e06f2279-3b4a-4f0c-9aba-831703c723bb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7899d486d1d4520dda69c98580e7060484c019b796bd5193452deb31baa30ca1"
+  },
+  "id": "TTXDX4RIeIzL3M7U",
+  "tags": []
+}
