@@ -154,7 +154,7 @@ Ngrok (for exposing webhook URLs in dev)
 This project is licensed under the MIT License.
 
 💡 Author
-Created by [Your Name] ✨
+Created by Roshani Patel ✨
 SOC Workflow Automation | Security Monitoring | Threat Intelligence
 
 yaml
