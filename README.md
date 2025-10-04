@@ -1,4 +1,4 @@
-                                                               # 🛡️ SOC Flow: Wazuh + VirusTotal + n8n
+# 🛡️ SOC Flow: Wazuh + VirusTotal + n8n
 
 A Security Operations Center (SOC) automation workflow that integrates **Wazuh**, **VirusTotal**, and **n8n** to detect, enrich, and respond to threats in real time.  
 
